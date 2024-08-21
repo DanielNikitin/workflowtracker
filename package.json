@@ -1,0 +1,53 @@
+{
+  "name": "esportfolio",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "server": "nodemon src/server.js",
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@demark-pro/react-booking-calendar": "^3.0.5",
+    "@next/font": "^13.4.4",
+    "@splidejs/react-splide": "^0.7.12",
+    "@splidejs/splide": "^4.1.4",
+    "axios": "^1.7.2",
+    "corn": "^0.0.1",
+    "cors": "^2.8.5",
+    "date-fns": "^3.6.0",
+    "express": "^4.19.2",
+    "flowbite": "^2.3.0",
+    "flowbite-datepicker": "^1.2.6",
+    "framer-motion": "^10.12.16",
+    "googleapis": "^137.1.0",
+    "joi": "^17.13.3",
+    "lodash": "^4.17.21",
+    "next": "13.4.3",
+    "node": "^22.6.0",
+    "nodemon": "^3.1.4",
+    "primeicons": "^7.0.0",
+    "primereact": "^10.6.5",
+    "react": "18.2.0",
+    "react-calendar": "^5.0.0",
+    "react-countup": "^6.4.2",
+    "react-datepicker": "^6.9.0",
+    "react-day-picker": "^8.10.1",
+    "react-dom": "18.2.0",
+    "react-icons": "^4.8.0",
+    "react-tsparticles": "^2.9.3",
+    "sqlite3": "^5.1.7",
+    "swiper": "^9.4.1",
+    "tailwind-scrollbar": "^3.0.4",
+    "tsparticles": "^2.9.3"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.14",
+    "eslint": "8.41.0",
+    "eslint-config-next": "13.4.3",
+    "postcss": "^8.4.23",
+    "tailwindcss": "^3.4.3"
+  }
+}
