@@ -1,35 +1,65 @@
 import React, { useState, useEffect } from 'react';
-
 import RenderTable from './RenderTable';
 import RenderCards from './RenderCards';
+import RenderManagerTable from './RenderManagerTable';
+import RenderManagerCards from './RenderManagerCards';
 
 const WorkList = ({ onSuccess, onProcess, onError, userId }) => {
+  const [userGroup, setUserGroup] = useState(null);
+  const [selectedClient, setSelectedClient] = useState('');
   const [works, setWorks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-
-  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1); // Default to current month
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear()); // Default to current year
-
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [currentPage, setCurrentPage] = useState(1);
   const [worksPerPage, setWorksPerPage] = useState(30);
-
   const [editingWork, setEditingWork] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
-
   const [expandedWorkId, setExpandedWorkId] = useState(null);
+  const [totalTime, setTotalTime] = useState({ hours: 0, minutes: 0 });
+
+  useEffect(() => {
+    const fetchUserGroup = async () => {
+      try {
+        const response = await fetch(`http://localhost:3009/api/user/group/${userId}`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch user group');
+        }
+        const data = await response.json();
+        setUserGroup(data.group_id);
+        
+        // Установить выбранного клиента для обычного пользователя
+        if (data.group_id === 3) {
+          setSelectedClient(userId);
+        }
+      } catch (error) {
+        console.error('Error fetching user group:', error);
+      }
+    };
+
+    if (userId) {
+      fetchUserGroup();
+    }
+  }, [userId]);
 
   const fetchWorks = async () => {
+    // Если selectedClient пустой и это обычный пользователь, используем userId
+    const clientToUse = selectedClient || userId;
+
+    if (!clientToUse) return;
+
     setLoading(true);
     try {
       const formattedMonth = selectedMonth.toString().padStart(2, '0');
-      const response = await fetch(`http://localhost:3009/api/works?userId=${userId}&month=${formattedMonth}&year=${selectedYear}`);
+      const response = await fetch(`http://localhost:3009/api/works?userId=${clientToUse}&month=${formattedMonth}&year=${selectedYear}`);
       
       if (!response.ok) {
         throw new Error('Failed to fetch works');
       }
       const data = await response.json();
       setWorks(data);
+      calculateTotalTimeForMonth(data);
     } catch (error) {
       setError(error.message);
     } finally {
@@ -39,7 +69,7 @@ const WorkList = ({ onSuccess, onProcess, onError, userId }) => {
   
   useEffect(() => {
     fetchWorks();
-  }, [userId, selectedMonth, selectedYear]);
+  }, [userId, selectedMonth, selectedYear, selectedClient]);
 
   useEffect(() => {
     if (loading) {
@@ -55,18 +85,18 @@ const WorkList = ({ onSuccess, onProcess, onError, userId }) => {
 
   const handleRefresh = () => {
     setLoading(true);
-    setCurrentPage(1); // Reset to first page on refresh
-    fetchWorks(); // Re-fetch works with current selections
+    setCurrentPage(1);
+    fetchWorks();
   };
 
   const handleEdit = (work) => {
-    setEditingWork(work); // Устанавливаем текущую редактируемую запись
-    setIsEditing(true);   // Показать форму редактирования
+    setEditingWork(work);
+    setIsEditing(true);
   };
 
   const handleChange = (e) => {
+    // export name and value from input/select field
     const { name, value } = e.target;
-  
     setEditingWork((prevWork) => {
       const newWork = { ...prevWork };
       if (name.includes('start_')) {
@@ -79,7 +109,6 @@ const WorkList = ({ onSuccess, onProcess, onError, userId }) => {
             newWork.start_time = part === 'hour' ? `${value}:${minutes}` : `${hours}:${value}`;
           }
         }
-
       } else if (name.includes('end_')) {
         const [type, part] = name.split('_');
         if (type === 'end') {
@@ -126,7 +155,7 @@ const WorkList = ({ onSuccess, onProcess, onError, userId }) => {
         onError(errorMessage.error);
         throw new Error(`${errorMessage.error}`);
       } else {
-        fetchWorks(); // Перезагрузка списка работ
+        fetchWorks();
         setIsEditing(false);
         onSuccess('Work Successfully Saved');
       }
@@ -146,7 +175,7 @@ const WorkList = ({ onSuccess, onProcess, onError, userId }) => {
         onError(errorMessage.error);
         throw new Error(`${errorMessage.error}`);
       } else {
-        fetchWorks(); // Перезагрузка списка работ
+        fetchWorks();
         setIsEditing(false);
         onError('Work Successfully Deleted');
       }
@@ -155,17 +184,34 @@ const WorkList = ({ onSuccess, onProcess, onError, userId }) => {
     }
   };
 
+  // for sm size // phone mode
   const handleToggleExpand = (id) => {
     setExpandedWorkId(expandedWorkId === id ? null : id);
   };
 
-  // Обработчик изменения количества работ на странице
   const handleWorksPerPageChange = (e) => {
     setWorksPerPage(parseInt(e.target.value));
-    setCurrentPage(1); // Сбрасываем текущую страницу на первую
+    setCurrentPage(1);
   };
 
-  // Calculate pagination
+  const calculateTotalTimeForMonth = (works) => {
+    let totalMinutes = 0;
+  
+    works.forEach((work) => {
+      const start = new Date(`${work.start_date}T${work.start_time}`);
+      const end = new Date(`${work.end_date}T${work.end_time}`);
+      const differenceInMinutes = (end - start) / (1000 * 60);
+  
+      totalMinutes += differenceInMinutes;
+    });
+  
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+  
+    setTotalTime({ hours, minutes });
+  };
+  
+
   const totalPages = Math.ceil(works.length / worksPerPage);
   const paginatedWorks = works
     .slice((currentPage - 1) * worksPerPage, currentPage * worksPerPage)
@@ -173,66 +219,139 @@ const WorkList = ({ onSuccess, onProcess, onError, userId }) => {
 
   return (
     <div className="mt-4 px-4">
+      {userGroup === 2 && (
+        <>
+        {/* Render Table */}
+          <div className="sm:hidden xl:block">
+            <RenderTable
+              works={works}
+              paginatedWorks={paginatedWorks}
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalTime={totalTime}
+              worksPerPage={worksPerPage}
+              selectedMonth={selectedMonth}
+              selectedYear={selectedYear}
+              setSelectedYear={setSelectedYear}
+              setSelectedMonth={setSelectedMonth}
+              handleEdit={handleEdit}
+              handleChange={handleChange}
+              handleSave={handleSave}
+              handleDelete={handleDelete}
+              handleTimeChange={handleTimeChange}
+              handleWorksPerPageChange={handleWorksPerPageChange}
+              setCurrentPage={setCurrentPage}
+              isEditing={isEditing}
+              editingWork={editingWork}
+              setIsEditing={setIsEditing}
+              loading={loading}
+              error={error}
+            />
+          </div>
 
-      {/* Render Table */ }
-      <div className="sm:hidden xl:block">
-        <RenderTable
-          works={works} // Передаем полный список работ
-          paginatedWorks={paginatedWorks} // Передаем только текущую страницу
-          currentPage={currentPage}
-          totalPages={totalPages}
-          worksPerPage={worksPerPage}
-          selectedMonth={selectedMonth}
-          selectedYear={selectedYear}
-          setSelectedYear={setSelectedYear}
-          setSelectedMonth={setSelectedMonth}
-          handleEdit={handleEdit}
-          handleChange={handleChange}
-          handleSave={handleSave}
-          handleDelete={handleDelete}
-          handleTimeChange={handleTimeChange}
-          handleWorksPerPageChange={handleWorksPerPageChange}
-          setCurrentPage={setCurrentPage}
-          isEditing={isEditing}
-          editingWork={editingWork}
-          setIsEditing={setIsEditing}
+          {/* Render Card */}
+          <div className="xl:hidden sm:block">
+            <RenderCards
+              works={works}
+              paginatedWorks={paginatedWorks}
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalTime={totalTime}
+              worksPerPage={worksPerPage}
+              selectedMonth={selectedMonth}
+              selectedYear={selectedYear}
+              setSelectedYear={setSelectedYear}
+              setSelectedMonth={setSelectedMonth}
+              setSelectedClient={setSelectedClient}
+              handleEdit={handleEdit}
+              handleTimeChange={handleTimeChange}
+              handleWorksPerPageChange={handleWorksPerPageChange}
+              setCurrentPage={setCurrentPage}
+              isEditing={isEditing}
+              editingWork={editingWork}
+              setIsEditing={setIsEditing}
+              handleChange={handleChange}
+              handleSave={handleSave}
+              handleDelete={handleDelete}
 
-          loading={loading} // Передаем состояние загрузки
-          error={error} // Передаем ошибки
-        />
-      </div>
+              expandedWorkId={expandedWorkId}
+              handleToggleExpand={handleToggleExpand}
 
-      {/* Render Card */}
-      <div className="xl:hidden sm:block">
-        <RenderCards
-          works={works} // Передаем полный список работ
-          paginatedWorks={paginatedWorks} // Передаем только текущую страницу
-          currentPage={currentPage}
-          totalPages={totalPages}
-          worksPerPage={worksPerPage}
-          selectedMonth={selectedMonth}
-          selectedYear={selectedYear}
-          setSelectedYear={setSelectedYear}
-          setSelectedMonth={setSelectedMonth}
-          handleEdit={handleEdit}
-          handleTimeChange={handleTimeChange}
-          handleWorksPerPageChange={handleWorksPerPageChange}
-          setCurrentPage={setCurrentPage}
-          isEditing={isEditing}
-          editingWork={editingWork}
-          setIsEditing={setIsEditing}
-          handleChange={handleChange}
-          handleSave={handleSave}
-          handleDelete={handleDelete}
+              loading={loading} // Передаем состояние загрузки
+              error={error} // Передаем ошибки
+            />
+          </div>
+        </>
+      )}
 
-          expandedWorkId={expandedWorkId}
-          handleToggleExpand={handleToggleExpand}
+      {userGroup === 3 && (
+              <>
+                {/* Render Manager Table */}
+                <div className="sm:hidden xl:block">
+                  <RenderManagerTable
+                    works={works}
+                    paginatedWorks={paginatedWorks}
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    totalTime={totalTime}
+                    worksPerPage={worksPerPage}
+                    selectedMonth={selectedMonth}
+                    selectedYear={selectedYear}
+                    setSelectedYear={setSelectedYear}
+                    setSelectedMonth={setSelectedMonth}
+                    setSelectedClient={setSelectedClient}
+                    handleEdit={handleEdit}
+                    handleChange={handleChange}
+                    handleSave={handleSave}
+                    handleDelete={handleDelete}
+                    handleTimeChange={handleTimeChange}
+                    handleWorksPerPageChange={handleWorksPerPageChange}
+                    setCurrentPage={setCurrentPage}
+                    isEditing={isEditing}
+                    editingWork={editingWork}
+                    setIsEditing={setIsEditing}
+                    loading={loading}
+                    error={error}
+                  />
+                </div>
 
-          loading={loading} // Передаем состояние загрузки
-          error={error} // Передаем ошибки
-        />
-      </div>
+                {/* Render Card */}
+                <div className="xl:hidden sm:block">
+                  <RenderManagerCards
+                    works={works}
+                    paginatedWorks={paginatedWorks}
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    totalTime={totalTime}
+                    worksPerPage={worksPerPage}
+                    selectedMonth={selectedMonth}
+                    selectedYear={selectedYear}
+                    selectedClient={selectedClient}
+                    setSelectedYear={setSelectedYear}
+                    setSelectedMonth={setSelectedMonth}
+                    setSelectedClient={setSelectedClient}
+                    handleEdit={handleEdit}
+                    handleTimeChange={handleTimeChange}
+                    handleWorksPerPageChange={handleWorksPerPageChange}
+                    setCurrentPage={setCurrentPage}
+                    isEditing={isEditing}
+                    editingWork={editingWork}
+                    setIsEditing={setIsEditing}
+                    handleChange={handleChange}
+                    handleSave={handleSave}
+                    handleDelete={handleDelete}
 
+                    expandedWorkId={expandedWorkId}
+                    handleToggleExpand={handleToggleExpand}
+
+                    loading={loading} // Передаем состояние загрузки
+                    error={error} // Передаем ошибки
+                  />
+                </div>
+              </>
+            )}
+
+      {userGroup === null && <p>Loading user group...</p>}
     </div>
   );
 };

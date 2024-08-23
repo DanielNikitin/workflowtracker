@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import DateSelector from './DateSelector';
 import TimeSelector from './TimeSelector';
 import { format } from 'date-fns';
@@ -15,7 +15,7 @@ const calculateTotalTime = (startDate, endDate, startTime, endTime) => {
     return `${hours}h ${minutes}m`;
 };
 
-const RenderCards = ({
+const RenderManagerCards = ({
     works,
     paginatedWorks,
     currentPage,
@@ -24,8 +24,10 @@ const RenderCards = ({
     worksPerPage,
     selectedMonth,
     selectedYear,
+    selectedClient,
     setSelectedYear,
     setSelectedMonth,
+    setSelectedClient,
     handleEdit,
     handleChange,
     handleSave,
@@ -41,6 +43,22 @@ const RenderCards = ({
     handleToggleExpand
 }) => {
 
+    const [clients, setClients] = useState([]);
+
+    useEffect(() => {
+      // Fetch clients from the server
+      fetch('http://localhost:3009/api/clients')
+        .then(response => response.json())
+        .then(data => setClients(data))
+        .catch(error => console.error('Error fetching clients:', error));
+    }, []);
+  
+    const handleClientChange = (e) => {
+      const selectedId = e.target.value;
+      setSelectedClient(selectedId);
+      setCurrentPage(1); // Reset to first page on client change
+    };
+
     // Обработчик изменения выбранного месяца
     const handleMonthChange = (e) => {
         setSelectedMonth(parseInt(e.target.value));
@@ -49,32 +67,50 @@ const RenderCards = ({
 
     return (
         <div className="p-1">
+            {/* Container for Month, Clients List, Cards List */}
+            <div className="flex justify-between mb-4">
+                <div className="flex flex-col space-y-4">
+                    {/* Month */}
+                    <div>
+                        <label className="block text-white mb-2">Месяц:</label>
+                        <select
+                            value={selectedMonth}
+                            onChange={handleMonthChange}
+                            className="bg-gray-800 text-white p-2 rounded"
+                        >
+                            {[...Array(12).keys()].map((i) => (
+                                <option key={i + 1} value={i + 1}>
+                                    {new Date(0, i).toLocaleString('en', { month: 'long' })}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
 
-            {/* Контейнер для выбора месяца и Total Time */}
-            <div className="flex justify-between items-center mb-4">
-                {/* Выбор месяца */}
-                <div className="flex-1">
-                    <label className="block text-white mb-2">Выберите месяц:</label>
+                    {/* Total Work time per current Month */}
+                    <div className="text-white font-bold">
+                        Total Time: {totalTime.hours}h {totalTime.minutes}m
+                    </div>
+                </div>
+
+                {/* Clients List */}
+                <div>
+                    <label className="block text-white mb-2">Работник:</label>
                     <select
-                        value={selectedMonth}
-                        onChange={handleMonthChange}
+                        value={selectedClient}
+                        onChange={handleClientChange}
                         className="bg-gray-800 text-white p-2 rounded"
                     >
-                        {[...Array(12).keys()].map((i) => (
-                            <option key={i + 1} value={i + 1}>
-                                {new Date(0, i).toLocaleString('en', { month: 'long' })}
+                        <option value="">Выберите клиента</option>
+                        {clients.map(client => (
+                            <option key={client.id} value={client.id}>
+                                {client.name}
                             </option>
                         ))}
                     </select>
                 </div>
-
-              {/* Total Work time per current Month */}
-              <div className="text-white font-bold mt-8">
-                Total Time: {totalTime.hours}h {totalTime.minutes}m
-              </div>
             </div>
 
-            {/* Список карт */}
+            {/* Cards list */}
             <div className="max-h-[700px] overflow-y-auto">
                 {paginatedWorks.length === 0 ? (
                     <p className="text-gray-300">Нет записей о работе</p>
@@ -206,4 +242,4 @@ const RenderCards = ({
     );
 };
 
-export default RenderCards;
+export default RenderManagerCards;

@@ -1,5 +1,5 @@
 const sqlite3 = require('sqlite3').verbose();
-const dbPath = './src/db/database.db';
+const dbPath = './db/database.db';
 
 // Create tables if they do not exist
 function createTablesIfNotExists(db) {
@@ -41,14 +41,25 @@ function createTablesIfNotExists(db) {
                 if (err) reject(err);
             });
 
-            // New Logins table
+            // New Groups table
+            db.run(`
+                CREATE TABLE IF NOT EXISTS Groups (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    group_name TEXT UNIQUE NOT NULL
+                );
+            `, (err) => {
+                if (err) reject(err);
+            });
+
+            // Modified Logins table to reference Groups
             db.run(`
                 CREATE TABLE IF NOT EXISTS Logins (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     login TEXT UNIQUE NOT NULL,
                     password TEXT NOT NULL,
                     name TEXT NOT NULL,
-                    position TEXT NOT NULL
+                    group_id INTEGER NOT NULL,
+                    FOREIGN KEY (group_id) REFERENCES Groups(id)
                 );
             `, (err) => {
                 if (err) reject(err);
@@ -75,16 +86,29 @@ function createTablesIfNotExists(db) {
     });
 }
 
-// Function to insert sample data into Logins table (optional)
-function insertSampleLogins(db) {
-    const stmt = db.prepare(`
-        INSERT OR IGNORE INTO Logins (login, password, name, position) VALUES (?, ?, ?, ?);
+// Function to insert sample data into Groups and Logins table (optional)
+function insertSampleData(db) {
+    const groupStmt = db.prepare(`
+        INSERT OR IGNORE INTO Groups (group_name) VALUES (?);
     `);
 
-    stmt.run('admin', 'password123', 'Admin User', 'Administrator');
-    stmt.run('user', 'userpassword', 'Regular User', 'User');
+    // Insert sample groups
+    const groups = ['Admin', 'User', 'Manager', 'Director'];
+    groups.forEach(group => {
+        groupStmt.run(group);
+    });
 
-    stmt.finalize();
+    groupStmt.finalize();
+
+    // Insert sample logins
+    const loginStmt = db.prepare(`
+        INSERT OR IGNORE INTO Logins (login, password, name, group_id) VALUES (?, ?, ?, (SELECT id FROM Groups WHERE group_name = ?));
+    `);
+
+    loginStmt.run('danieln', '1', 'Daniel', 'User');
+    loginStmt.run('dmitrin', '1', 'Dmitri', 'Manager');
+
+    loginStmt.finalize();
 }
 
 // Main function to execute the script
@@ -101,7 +125,7 @@ async function main() {
             await createTablesIfNotExists(db);
 
             // Insert sample data (optional)
-            insertSampleLogins(db);
+            insertSampleData(db);
 
             // Close database connection
             db.close((err) => {
@@ -117,6 +141,5 @@ async function main() {
 }
 
 main();
-
 
 // node src/generateyear.js

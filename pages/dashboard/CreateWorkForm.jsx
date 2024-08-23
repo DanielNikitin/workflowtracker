@@ -151,6 +151,7 @@ const CreateWorkForm = ({ onSuccess, onError, defaultName, userId, onClose }) =>
                 required
               >
                 <option value="">Выберите тип работы</option>
+                <option value="Прочее">Прочее</option>
                 <option value="Ремонт">Ремонт</option>
                 <option value="Обслуживание">Обслуживание</option>
                 <option value="Стрижка газона">Стрижка газона</option>
@@ -165,28 +166,32 @@ const CreateWorkForm = ({ onSuccess, onError, defaultName, userId, onClose }) =>
               </label>
               <textarea
                 id="additionalInfo"
-                className="bg-gray-800 border border-gray-600 text-white text-sm rounded-lg focus:ring-slate-500 focus:border-slate-500 block w-full p-2.5 focus:outline-none focus:shadow-outline"
+                className="bg-gray-800 border border-gray-600 text-white text-sm rounded-lg focus:ring-slate-500 focus:border-slate-500 block w-full p-2.5 focus:outline-none focus:shadow-outline max-h-[220px]"
                 placeholder="Введите доп. информацию здесь..."
                 value={additionalInfo}
                 onChange={(e) => setAdditionalInfo(e.target.value)}
               />
             </div>
           </div>
+
           <div className="flex justify-between">
+            
             <button
               type="button"
               className="text-gray-200 bg-red-500 hover:bg-red-600 focus:outline-none focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5"
               onClick={onClose}
             >
-              Отмена
+              Закрыть
             </button>
+
             <button
               type="submit"
-              className="text-gray-200 bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5"
+              className="text-gray-200 bg-emerald-500 hover:bg-emerald-600 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5"
               disabled={isSubmitting || submitTimeout}
             >
               {isSubmitting ? 'Создание...' : 'Создать работу'}
             </button>
+
           </div>
         </form>
       </div>

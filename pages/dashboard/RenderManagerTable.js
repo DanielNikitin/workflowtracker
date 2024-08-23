@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import DateSelector from './DateSelector';
 import TimeSelector from './TimeSelector';
 import ExpandableText from './ExpandableText';
@@ -15,7 +15,7 @@ const calculateTotalTime = (startDate, endDate, startTime, endTime) => {
   return `${hours}h ${minutes}m`;
 };
 
-const RenderTable = ({
+const RenderManagerTable = ({
   works,
   paginatedWorks,
   currentPage,
@@ -24,8 +24,10 @@ const RenderTable = ({
   worksPerPage,
   selectedMonth,
   selectedYear,
+  selectedClient,
   setSelectedYear,
   setSelectedMonth,
+  setSelectedClient,
   handleEdit,
   handleChange,
   handleSave,
@@ -37,6 +39,21 @@ const RenderTable = ({
   editingWork,
   setIsEditing,
 }) => {
+  const [clients, setClients] = useState([]);
+
+  useEffect(() => {
+    // Fetch clients from the server
+    fetch('http://localhost:3009/api/clients')
+      .then(response => response.json())
+      .then(data => setClients(data))
+      .catch(error => console.error('Error fetching clients:', error));
+  }, []);
+
+  const handleClientChange = (e) => {
+    const selectedId = e.target.value;
+    setSelectedClient(selectedId);
+    setCurrentPage(1); // Reset to first page on client change
+  };
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState('');
@@ -50,13 +67,30 @@ const RenderTable = ({
     setIsModalOpen(false);
     setModalContent('');
   };
-  
+
   return (
     <div className="mt-4 px-4">
-      {/* Управляющие элементы */}
       <div className="mb-4">
         <div className="flex items-center gap-4 mb-4">
-          {/* Выбор месяца */}
+
+          {/* Client Selector */}
+          <div>
+            <label className="block text-white mb-2">Клиент:</label>
+                <select
+                value={selectedClient}
+                onChange={handleClientChange}
+                className="bg-gray-800 text-white p-2 rounded"
+                >
+                <option value="">Выберите клиента</option>
+                {clients.map(client => (
+                    <option key={client.id} value={client.id}>
+                    {client.name}
+                    </option>
+                ))}
+                </select>
+          </div>
+
+          {/* Month Selector */}
           <div>
             <label className="block text-white mb-2">Месяц:</label>
             <select
@@ -71,7 +105,7 @@ const RenderTable = ({
               ))}
             </select>
           </div>
-          {/* Выбор года */}
+
           <div>
             <label className="block text-white mb-2">Год:</label>
             <select
@@ -86,7 +120,7 @@ const RenderTable = ({
               ))}
             </select>
           </div>
-          {/* Выбор количества записей на страницу */}
+
           <div>
             <label className="block text-white mb-2">Список:</label>
             <select
@@ -124,6 +158,7 @@ const RenderTable = ({
                 Total Time: {totalTime.hours}h {totalTime.minutes}m
               </div>
             </div>
+
         </div>
       </div>
 
@@ -134,7 +169,7 @@ const RenderTable = ({
           <table className="xl:w-full divide-y divide-gray-700">
             <thead>
               <tr>
-                <th className="sticky top-0 bg-gray-500 px-6 py-2 text-left text-xs font-roboto text-gray-300 uppercase tracking-wide">ID</th>
+              <th className="sticky top-0 bg-gray-500 px-6 py-2 text-left text-xs font-roboto text-gray-300 uppercase tracking-wide">ID</th>
                 <th className="sticky top-0 bg-gray-500 px-6 py-2 text-left text-xs font-roboto text-gray-300 uppercase tracking-wide">Start Date</th>
                 <th className="sticky top-0 bg-gray-500 px-6 py-2 text-left text-xs font-roboto text-gray-300 uppercase tracking-wide">Start Time</th>
                 <th className="sticky top-0 bg-gray-500 px-6 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wide">End Date</th>
@@ -148,43 +183,42 @@ const RenderTable = ({
 
             <tbody className="bg-gray-800 divide-y divide-gray-700">
               {paginatedWorks.map((work) => {
-                const formattedStartDate = format(new Date(work.start_date), 'dd/MM/yyyy');
-                const formattedEndDate = format(new Date(work.end_date), 'dd/MM/yyyy');
+                  const formattedStartDate = format(new Date(work.start_date), 'dd/MM/yyyy');
+                  const formattedEndDate = format(new Date(work.end_date), 'dd/MM/yyyy');
 
-                return (
-                  <tr key={work.id} className="text-white">
-                    <td className="px-4 py-2">{work.id}</td>
-                    <td className="px-4 py-2">{formattedStartDate}</td>
-                    <td className="px-4 py-2">{work.start_time}</td>
-                    <td className="px-4 py-2">{formattedEndDate}</td>
-                    <td className="px-4 py-2">{work.end_time}</td>
-                    <td className="px-4 py-2">{work.work_type}</td>
+                  return (
+                      <tr key={work.id} className="text-white">
+                          <td className="px-4 py-2">{work.id}</td>
+                          <td className="px-4 py-2">{formattedStartDate}</td>
+                          <td className="px-4 py-2">{work.start_time}</td>
+                          <td className="px-4 py-2">{formattedEndDate}</td>
+                          <td className="px-4 py-2">{work.end_time}</td>
+                          <td className="px-4 py-2">{work.work_type}</td>
 
-                    <td className="px-6 py-4 text-sm font-medium overflow-text">
-                      <ExpandableText
-                        text={work.additional_info || 'N/A'}
-                        maxLength={20}
-                        onMoreClick={() => openModal(work.additional_info || 'N/A')}
-                      />
-                    </td>
+                          <td className="px-6 py-4 text-sm font-medium overflow-text">
+                            <ExpandableText
+                              text={work.additional_info || 'N/A'}
+                              maxLength={20}
+                              onMoreClick={() => openModal(work.additional_info || 'N/A')}
+                            />
+                          </td>
 
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      {calculateTotalTime(work.start_date, work.end_date, work.start_time, work.end_time)}
-                    </td>
-
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <button
-                        onClick={() => handleEdit(work)}
-                        className="text-slate-500 hover:text-slate-700 mr-2"
-                      >
-                        Edit
-                      </button>
-                    </td>
-
-                  </tr>
-                );
-              })}
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                              {calculateTotalTime(work.start_date, work.end_date, work.start_time, work.end_time)}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                              <button
+                                  onClick={() => handleEdit(work)}
+                                  className="text-slate-500 hover:text-slate-700 mr-2"
+                              >
+                                  Edit
+                              </button>
+                          </td>
+                      </tr>
+                    );
+                })}
             </tbody>
+
           </table>
         </div>
       )}
@@ -203,10 +237,12 @@ const RenderTable = ({
       {/* Edit Work Modal */}
       {isEditing && (
         <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-75">
-          <div className="bg-gray-900 p-6 rounded shadow-lg xl:w-[40%]">
+
+          <div className="bg-gray-900 p-6 rounded shadow-lg xl:w-[30%] sm:w-[90%] md:w-[80%] sm:h-auto">
+            
             {/* START DATE */}
             <div className="flex flex-wrap gap-4">
-              <div className="flex flex-col xl:w-[48%]">
+              <div className="flex flex-col xl:w-[48%] sm:w-full">
                 <label className="text-white mb-2 text-sm">Start Date:</label>
                   <DateSelector
                   selectedDate={new Date(editingWork.start_date)}
@@ -216,7 +252,7 @@ const RenderTable = ({
               </div>
 
               {/* START TIME */}
-              <div className="flex flex-col xl:w-[48%]">
+              <div className="flex flex-col xl:w-[48%] sm:w-full">
                 <label className="text-white mb-2 text-sm">Start Time:</label>
                   <div className="flex gap-2">
                     <TimeSelector
@@ -240,7 +276,7 @@ const RenderTable = ({
               </div>
 
               {/* END TIME */}
-              <div className="flex flex-col xl:w-[48%]">
+              <div className="flex flex-col xl:w-[48%] sm:w-full">
                 <label className="text-white mb-2 text-sm">End Time:</label>
                 <div className="flex gap-2">
                   <TimeSelector
@@ -255,14 +291,14 @@ const RenderTable = ({
 
             {/* WORK TYPE */}
             <div className="mt-4 flex flex-wrap gap-4">
-              <div className="flex flex-col xl:w-[48%]">
+              <div className="flex flex-col xl:w-[48%] sm:w-full">
                 <label className="text-white mb-2 text-sm">Work Type:</label>
                 <input
                   type="text"
                   name="work_type"
                   value={editingWork.work_type}
                   onChange={handleChange}
-                  className="bg-gray-800 border border-gray-600 text-white text-sm rounded-lg focus:ring-slate-500 focus:border-slate-500 block w-full p-2.5 focus:outline-none focus:shadow-outline"
+                  className="bg-gray-700 text-white p-2 rounded text-sm"
                 />
               </div>
 
@@ -285,11 +321,13 @@ const RenderTable = ({
               <button onClick={() => setIsEditing(false)} className="bg-slate-500 hover:bg-slate-700 text-white p-2 rounded mr-2">Cancel</button>
               <button onClick={handleDelete} className="bg-red-500 hover:bg-red-700 text-white p-2 rounded">Delete</button>
             </div>
+            
           </div>
         </div>
       )}
+
     </div>
   );
 };
 
-export default RenderTable;
+export default RenderManagerTable;

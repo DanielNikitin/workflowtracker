@@ -218,6 +218,42 @@ app.delete('/api/works/:id', (req, res) => {
   });
 });
 
+// Get user group_id by user id
+app.get('/api/user/group/:id', (req, res) => {
+  const userId = req.params.id;
+
+  const query = `
+    SELECT group_id FROM Logins WHERE id = ?
+  `;
+
+  db.get(query, [userId], (err, row) => {
+    if (err) {
+      console.error('Error querying user group:', err.message);
+      return res.status(500).json({ error: 'Database error' });
+    }
+    if (!row) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    //console.log(`User ID: ${userId} has Group ID: ${row.group_id}`);
+
+    res.status(200).json({ group_id: row.group_id });
+  });
+});
+
+// Get clients (users with group_id 2 or 3)
+app.get('/api/clients', (req, res) => {
+  const query = `
+    SELECT id, name FROM Logins WHERE group_id IN (2, 3)
+  `;
+
+  db.all(query, [], (err, rows) => {
+    if (err) {
+      console.error('Error querying clients:', err.message);
+      return res.status(500).json({ error: 'Database error' });
+    }
+    res.status(200).json(rows);
+  });
+});
 
 
 
