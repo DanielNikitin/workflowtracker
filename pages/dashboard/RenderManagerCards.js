@@ -47,7 +47,7 @@ const RenderManagerCards = ({
 
     useEffect(() => {
       // Fetch clients from the server
-      fetch('http://api2.dcg.ee:3009/api/clients')
+      fetch('https://api2.dcg.ee:3009/api/clients')
         .then(response => response.json())
         .then(data => setClients(data))
         .catch(error => console.error('Error fetching clients:', error));
