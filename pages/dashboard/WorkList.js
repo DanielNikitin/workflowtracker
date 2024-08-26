@@ -22,7 +22,7 @@ const WorkList = ({ onSuccess, onProcess, onError, userId }) => {
   useEffect(() => {
     const fetchUserGroup = async () => {
       try {
-        const response = await fetch(`http://localhost:3009/api/user/group/${userId}`);
+        const response = await fetch(`http://api2.dcg.ee:3009/api/user/group/${userId}`);
         if (!response.ok) {
           throw new Error('Failed to fetch user group');
         }
@@ -52,7 +52,7 @@ const WorkList = ({ onSuccess, onProcess, onError, userId }) => {
     setLoading(true);
     try {
       const formattedMonth = selectedMonth.toString().padStart(2, '0');
-      const response = await fetch(`http://localhost:3009/api/works?userId=${clientToUse}&month=${formattedMonth}&year=${selectedYear}`);
+      const response = await fetch(`http://api2.dcg.ee:3009/api/works?userId=${clientToUse}&month=${formattedMonth}&year=${selectedYear}`);
       
       if (!response.ok) {
         throw new Error('Failed to fetch works');
@@ -142,7 +142,7 @@ const WorkList = ({ onSuccess, onProcess, onError, userId }) => {
   
   const handleSave = async () => {
     try {
-      const response = await fetch(`http://localhost:3009/api/works/${editingWork.id}`, {
+      const response = await fetch(`http://api2.dcg.ee:3009/api/works/${editingWork.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -166,7 +166,7 @@ const WorkList = ({ onSuccess, onProcess, onError, userId }) => {
 
   const handleDelete = async () => {
     try {
-      const response = await fetch(`http://localhost:3009/api/works/${editingWork.id}`, {
+      const response = await fetch(`http://api2.dcg.ee:3009/api/works/${editingWork.id}`, {
         method: 'DELETE',
       });
   

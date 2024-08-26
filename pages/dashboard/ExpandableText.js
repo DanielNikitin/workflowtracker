@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const ExpandableText = ({ text, maxLength, onMoreClick }) => {
+const ExpandableText = ({ text = '', maxLength, onMoreClick }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const shouldTruncate = text.length > maxLength;

@@ -16,14 +16,14 @@ const calculateTotalTime = (startDate, endDate, startTime, endTime) => {
 };
 
 const RenderCards = ({
-    works,
-    paginatedWorks,
-    currentPage,
-    totalPages,
-    totalTime,
-    worksPerPage,
-    selectedMonth,
-    selectedYear,
+    works = [],
+    paginatedWorks = [],
+    currentPage = 1,
+    totalPages = 1,
+    totalTime = {},
+    worksPerPage = 10,
+    selectedMonth = 1,
+    selectedYear = new Date().getFullYear(),
     setSelectedYear,
     setSelectedMonth,
     handleEdit,
@@ -35,7 +35,7 @@ const RenderCards = ({
     setCurrentPage,
     isPortrait,
     isEditing,
-    editingWork,
+    editingWork = {},
     setIsEditing,
     expandedWorkId,
     handleToggleExpand
@@ -70,7 +70,7 @@ const RenderCards = ({
 
               {/* Total Work time per current Month */}
               <div className="text-white font-bold mt-8">
-                Total Time: {totalTime.hours}h {totalTime.minutes}m
+                Total Time: {totalTime.hours || 0}h {totalTime.minutes || 0}m
               </div>
             </div>
 
@@ -142,8 +142,8 @@ const RenderCards = ({
                                 <label className="text-white mb-2 text-sm">Start Time:</label>
                                 <div className="flex gap-2">
                                     <TimeSelector
-                                        hour={editingWork.start_time.split(':')[0]}
-                                        minute={editingWork.start_time.split(':')[1]}
+                                        hour={editingWork.start_time?.split(':')[0] || ''}
+                                        minute={editingWork.start_time?.split(':')[1] || ''}
                                         onHourChange={(e) => handleTimeChange('start_hour', e.target.value)}
                                         onMinuteChange={(e) => handleTimeChange('start_minute', e.target.value)}
                                     />

@@ -44,7 +44,7 @@ const CreateWorkForm = ({ onSuccess, onError, defaultName, userId, onClose }) =>
     setIsSubmitting(true);
 
     try {
-      const response = await fetch('http://localhost:3009/api/work', {
+      const response = await fetch('http://api2.dcg.ee:3009/api/work', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

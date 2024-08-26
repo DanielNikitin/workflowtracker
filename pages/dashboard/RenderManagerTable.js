@@ -16,15 +16,15 @@ const calculateTotalTime = (startDate, endDate, startTime, endTime) => {
 };
 
 const RenderManagerTable = ({
-  works,
-  paginatedWorks,
-  currentPage,
-  totalPages,
-  totalTime,
-  worksPerPage,
-  selectedMonth,
-  selectedYear,
-  selectedClient,
+  works = [],
+  paginatedWorks = [],
+  currentPage = 1,
+  totalPages = 1,
+  totalTime = {},
+  worksPerPage = 10,
+  selectedMonth = 1,
+  selectedYear = new Date().getFullYear(),
+  selectedClient = '',
   setSelectedYear,
   setSelectedMonth,
   setSelectedClient,
@@ -36,14 +36,14 @@ const RenderManagerTable = ({
   handleWorksPerPageChange,
   setCurrentPage,
   isEditing,
-  editingWork,
+  editingWork = {},
   setIsEditing,
 }) => {
   const [clients, setClients] = useState([]);
 
   useEffect(() => {
     // Fetch clients from the server
-    fetch('http://localhost:3009/api/clients')
+    fetch('http://api2.dcg.ee:3009/api/clients')
       .then(response => response.json())
       .then(data => setClients(data))
       .catch(error => console.error('Error fetching clients:', error));
@@ -155,7 +155,7 @@ const RenderManagerTable = ({
 
               {/* Total Work time per current Month */}
               <div className="text-white font-bold">
-                Total Time: {totalTime.hours}h {totalTime.minutes}m
+                Total Time: {totalTime.hours || 0}h {totalTime.minutes || 0}m
               </div>
             </div>
 
@@ -256,8 +256,8 @@ const RenderManagerTable = ({
                 <label className="text-white mb-2 text-sm">Start Time:</label>
                   <div className="flex gap-2">
                     <TimeSelector
-                    hour={editingWork.start_time.split(':')[0]}
-                    minute={editingWork.start_time.split(':')[1]}
+                    hour={editingWork.start_time?.split(':')[0] || ''}
+                    minute={editingWork.start_time?.split(':')[1] || ''}
                     onHourChange={(e) => handleTimeChange('start_hour', e.target.value)}
                     onMinuteChange={(e) => handleTimeChange('start_minute', e.target.value)}
                     />

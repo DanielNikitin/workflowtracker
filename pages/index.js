@@ -13,7 +13,7 @@ const Home = () => {
   useEffect(() => {
     const fetchServerStatus = async () => {
       try {
-        const response = await fetch('http://localhost:3009/api/status');
+        const response = await fetch('http://api2.dcg.ee:3009/api/status');
         setSuccessMessage('');
         if (!response.ok) {
           throw new Error('Failed to fetch status');
