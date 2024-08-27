@@ -27,7 +27,7 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchServerStatus = async () => {
       try {
-        const response = await fetch('https://api2.dcg.ee:3009/api/status');
+        const response = await fetch('https://api.dcg.ee:3009/api/status');
         if (response.ok) {
           setServerStatus('Online');
           setTimeout(() => {
@@ -52,7 +52,7 @@ const Dashboard = () => {
     setErrorMessage('');
 
     try {
-      const response = await fetch('https://api2.dcg.ee:3009/api/login', {
+      const response = await fetch('https://api.dcg.ee:3009/api/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
