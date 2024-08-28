@@ -7,16 +7,12 @@ import Transition from '../components/Transition';
 // router
 import { useRouter } from 'next/router';
 
-// API Context
-import { BookingProvider } from '../components/BookingHandler';
-
 // framer motion
 import { AnimatePresence, motion } from 'framer-motion';
 
 function MyApp({ Component, pageProps }) {
   const router = useRouter();
   return (
-    <BookingProvider>
       <Layout>
         <AnimatePresence mode='wait'>
           <motion.div key={router.route} className='h-full'>
@@ -25,7 +21,6 @@ function MyApp({ Component, pageProps }) {
           </motion.div>
         </AnimatePresence>
       </Layout>
-    </BookingProvider>
   );
 }
 

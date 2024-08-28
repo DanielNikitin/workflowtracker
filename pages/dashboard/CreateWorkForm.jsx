@@ -83,12 +83,9 @@ const CreateWorkForm = ({ onSuccess, onError, defaultName, userId, onClose }) =>
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-75">
-      <div className="bg-gray-900 p-8 rounded-lg shadow-lg w-[500px] h-full">
-        <h2 className="text-2xl mb-6 text-white">Создать рабочую анкету</h2>
+      <div className="bg-gray-900 p-8 rounded-lg shadow-lg w-[500px] h-full overflow-y-auto">
         <form onSubmit={handleSubmit}>
           <div className="grid gap-6 mb-6 md:grid-cols-2">
-
-
 
             <div>
               <label htmlFor="startDate" className="block mb-2 text-sm font-medium text-white">

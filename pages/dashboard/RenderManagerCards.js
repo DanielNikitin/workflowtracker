@@ -67,7 +67,7 @@ const RenderManagerCards = ({
     return (
         <div className="p-1">
             {/* Container for Month, Clients List, Cards List */}
-            <div className="flex justify-between mb-4">
+            <div className="flex justify-between mb-4 overflow-y-auto">
                 <div className="flex flex-col space-y-4">
                     {/* Month */}
                     <div>

@@ -9,7 +9,6 @@ const roboto = Roboto({
 });
 
 // components
-import Nav from '../components/Nav';
 import Header from '../components/Header';
 
 const Layout = ({ children }) => {
