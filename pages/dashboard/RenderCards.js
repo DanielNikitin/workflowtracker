@@ -48,7 +48,7 @@ const RenderCards = ({
     };
 
     return (
-        <div className="p-1 overflow-y-auto max-h-screen">
+        <div className="p-1 max-h-screen">
 
             {/* Контейнер для выбора месяца и Total Time */}
             <div className="flex justify-between items-center mb-4">
@@ -125,7 +125,7 @@ const RenderCards = ({
 
             {/* Edit Modal Window */}
             {isEditing && (
-                <div className="overflow-y-auto fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-75">
+                <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-75">
                     <div className="bg-gray-900 p-6 rounded shadow-lg w-full sm:w-3/4 md:w-1/2">
                         
                         <div className="flex flex-wrap gap-4">
