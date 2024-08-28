@@ -155,7 +155,7 @@ const RenderManagerCards = ({
       {/* Edit Modal Window */}
       {isEditing && (
         <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-75">
-          <div className="bg-gray-900 p-6 rounded shadow-lg w-full sm:w-3/4 md:w-1/2">
+          <div className="bg-gray-900 p-6 rounded shadow-lg w-full sm:w-3/4 md:w-1/2 max-h-[80vh] overflow-y-auto"> {/* Ограничение высоты и скроллинг содержимого */}
             <div className="flex flex-wrap gap-4">
               {/* Start Date */}
               <div className="flex flex-col w-full">
