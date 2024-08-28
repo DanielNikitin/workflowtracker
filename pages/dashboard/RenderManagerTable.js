@@ -39,15 +39,16 @@ const RenderManagerTable = ({
   editingWork = {},
   setIsEditing,
 }) => {
+
   const [clients, setClients] = useState([]);
 
-  useEffect(() => {
-    // Fetch clients from the server
-    fetch('https://api2.dcg.ee/api/clients')
-      .then(response => response.json())
-      .then(data => setClients(data))
-      .catch(error => console.error('Error fetching clients:', error));
-  }, []);
+    useEffect(() => {
+      // Fetch clients from the server
+      fetch('https://api2.dcg.ee/api/clients')
+        .then(response => response.json())
+        .then(data => setClients(data))
+        .catch(error => console.error('Error fetching clients:', error));
+    }, []);
 
   const handleClientChange = (e) => {
     const selectedId = e.target.value;
@@ -75,13 +76,13 @@ const RenderManagerTable = ({
 
           {/* Client Selector */}
           <div>
-            <label className="block text-white mb-2">Клиент:</label>
+            <label className="block text-white mb-2">Работник:</label>
                 <select
                 value={selectedClient}
                 onChange={handleClientChange}
                 className="bg-gray-800 text-white p-2 rounded"
                 >
-                <option value="">Выберите клиента</option>
+                <option value="">Выберите имя</option>
                 {clients.map(client => (
                     <option key={client.id} value={client.id}>
                     {client.name}

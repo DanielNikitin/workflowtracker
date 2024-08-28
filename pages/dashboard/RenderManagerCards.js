@@ -35,7 +35,6 @@ const RenderManagerCards = ({
     handleTimeChange,
     handleWorksPerPageChange,
     setCurrentPage,
-    isPortrait,
     isEditing,
     editingWork = {},
     setIsEditing,
@@ -100,7 +99,7 @@ const RenderManagerCards = ({
                         onChange={handleClientChange}
                         className="bg-gray-800 text-white p-2 rounded"
                     >
-                        <option value="">Выберите клиента</option>
+                        <option value="">Выберите имя</option>
                         {clients.map(client => (
                             <option key={client.id} value={client.id}>
                                 {client.name}

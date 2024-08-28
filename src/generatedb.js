@@ -105,7 +105,7 @@ function insertSampleData(db) {
         INSERT OR IGNORE INTO Logins (login, password, name, group_id) VALUES (?, ?, ?, (SELECT id FROM Groups WHERE group_name = ?));
     `);
 
-    loginStmt.run('danieln', '1', 'Daniel', 'User');
+    loginStmt.run('danieln', '1', 'Daniel', 'Manager');
     loginStmt.run('dmitrin', '1', 'Dmitri', 'Manager');
 
     loginStmt.finalize();

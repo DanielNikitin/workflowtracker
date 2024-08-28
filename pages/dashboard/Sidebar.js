@@ -55,8 +55,12 @@ const Sidebar = ({
             Work List
           </button>
 
+          {/* Spacer to push the Logout button down */}
+          <div className="flex-grow"></div>
+
+          {/* Logout Button */}
           <button
-            className="block w-full bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mb-4 focus:outline-none focus:shadow-outline"
+            className="block mb-10 w-full bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
             onClick={handleLogout}
           >
             Logout

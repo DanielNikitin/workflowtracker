@@ -87,19 +87,8 @@ const CreateWorkForm = ({ onSuccess, onError, defaultName, userId, onClose }) =>
         <h2 className="text-2xl mb-6 text-white">Создать рабочую анкету</h2>
         <form onSubmit={handleSubmit}>
           <div className="grid gap-6 mb-6 md:grid-cols-2">
-            <div>
-              <label htmlFor="name" className="block mb-2 text-sm font-medium text-white">
-                Имя
-              </label>
-              <input
-                type="text"
-                id="name"
-                className="bg-gray-800 border border-gray-600 text-white text-sm rounded-lg focus:ring-slate-500 focus:border-slate-500 block w-full p-2.5 focus:outline-none focus:shadow-outline"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-              />
-            </div>
+
+
 
             <div>
               <label htmlFor="startDate" className="block mb-2 text-sm font-medium text-white">

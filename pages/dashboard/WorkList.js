@@ -43,16 +43,13 @@ const WorkList = ({ onSuccess, onProcess, onError, userId }) => {
     }
   }, [userId]);
 
-  const fetchWorks = async () => {
-    // Если selectedClient пустой и это обычный пользователь, используем userId
-    const clientToUse = selectedClient || userId;
-
-    if (!clientToUse) return;
-
+  const fetchWorks = async (client = selectedClient || userId) => {
+    if (!client) return;
+  
     setLoading(true);
     try {
       const formattedMonth = selectedMonth.toString().padStart(2, '0');
-      const response = await fetch(`https://api2.dcg.ee/api/works?userId=${clientToUse}&month=${formattedMonth}&year=${selectedYear}`);
+      const response = await fetch(`https://api2.dcg.ee/api/works?userId=${client}&month=${formattedMonth}&year=${selectedYear}`);
       
       if (!response.ok) {
         throw new Error('Failed to fetch works');
@@ -67,9 +64,16 @@ const WorkList = ({ onSuccess, onProcess, onError, userId }) => {
     }
   };
   
+  
   useEffect(() => {
     fetchWorks();
   }, [userId, selectedMonth, selectedYear, selectedClient]);
+
+  useEffect(() => {
+    console.log('Selected Client changed:', selectedClient);
+    fetchWorks();
+  }, [selectedClient]);
+  
 
   useEffect(() => {
     if (loading) {
@@ -297,6 +301,7 @@ const WorkList = ({ onSuccess, onProcess, onError, userId }) => {
                     worksPerPage={worksPerPage}
                     selectedMonth={selectedMonth}
                     selectedYear={selectedYear}
+                    selectedClient={selectedClient}
                     setSelectedYear={setSelectedYear}
                     setSelectedMonth={setSelectedMonth}
                     setSelectedClient={setSelectedClient}
