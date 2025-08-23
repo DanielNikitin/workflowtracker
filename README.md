@@ -1,4 +1,4 @@
-This is WorkFlow Tracker application based on Next JS for Front End <br>
+"WorkFlow Tracker" application based on Next JS for Front End <br>
 And Node JS for Back End <br>
 <br>
 WorkFlow Tracker is an application designed to simplify the administration and tracking of work tasks. <br>
